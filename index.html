@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Camera, Send, CheckCircle, Circle, Clock, User, Mail, Settings } from 'lucide-react';
+import { Camera, Send, CheckCircle, Circle, Clock, User, Mail } from 'lucide-react';
 
 const RestaurantChecklist = () => {
   // EmailJS 설정 (미리 구성됨)
@@ -25,7 +25,7 @@ const RestaurantChecklist = () => {
   ]);
 
   const [staffName, setStaffName] = useState('');
-  const [managerEmail] = useState('chang.yoonho@gmail.com'); // 고정된 매니저 이메일
+  const managerEmail = 'chang.yoonho@gmail.com';
   const [currentDate] = useState(new Date().toLocaleDateString());
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRefs = useRef({});
