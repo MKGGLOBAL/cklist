@@ -1,14 +1,15 @@
-import React, { useState, useRef } from 'react';
-import { Camera, Send, CheckCircle, Circle, Clock, User, Mail } from 'lucide-react';
+import React, { useState } from 'react';
 
 const RestaurantChecklist = () => {
-  // EmailJS 설정 (미리 구성됨)
+  // EmailJS 설정
   const EMAIL_CONFIG = {
     publicKey: 'pxPMV9MhBRrIIDzvS',
     serviceId: 'service_oc0qw5r',
     templateId: 'template_w8xps0u'
   };
 
+  const [staffName, setStaffName] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [tasks, setTasks] = useState([
     { id: 1, category: 'Opening', task: 'Turn on all lights and equipment', completed: false, photo: null, time: null },
     { id: 2, category: 'Opening', task: 'Check temperature of refrigerators/freezers', completed: false, photo: null, time: null },
@@ -24,16 +25,17 @@ const RestaurantChecklist = () => {
     { id: 12, category: 'Closing', task: 'Turn off all equipment and lights', completed: false, photo: null, time: null }
   ]);
 
-  const [staffName, setStaffName] = useState('');
   const managerEmail = 'chang.yoonho@gmail.com';
-  const [currentDate] = useState(new Date().toLocaleDateString());
-  const [isLoading, setIsLoading] = useState(false);
-  const fileInputRefs = useRef({});
+  const currentDate = new Date().toLocaleDateString();
 
   const toggleTask = (id) => {
-    setTasks(tasks.map(task => 
+    setTasks(prev => prev.map(task => 
       task.id === id 
-        ? { ...task, completed: !task.completed, time: !task.completed ? new Date().toLocaleTimeString() : null }
+        ? { 
+            ...task, 
+            completed: !task.completed, 
+            time: !task.completed ? new Date().toLocaleTimeString() : null 
+          }
         : task
     ));
   };
@@ -43,10 +45,8 @@ const RestaurantChecklist = () => {
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        setTasks(tasks.map(task => 
-          task.id === id 
-            ? { ...task, photo: e.target.result }
-            : task
+        setTasks(prev => prev.map(task => 
+          task.id === id ? { ...task, photo: e.target.result } : task
         ));
       };
       reader.readAsDataURL(file);
@@ -57,9 +57,7 @@ const RestaurantChecklist = () => {
   const totalTasks = tasks.length;
   const progressPercentage = (completedTasks / totalTasks) * 100;
 
-  const categories = [...new Set(tasks.map(task => task.category))];
-
-  const generateReport = async () => {
+  const sendReport = async () => {
     if (!staffName.trim()) {
       alert('직원 이름을 입력해주세요.');
       return;
@@ -71,7 +69,6 @@ const RestaurantChecklist = () => {
     const incompleteTasksList = tasks.filter(task => !task.completed);
 
     try {
-      // EmailJS 라이브러리 동적 로드
       if (!window.emailjs) {
         const script = document.createElement('script');
         script.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
@@ -82,10 +79,8 @@ const RestaurantChecklist = () => {
         });
       }
 
-      // EmailJS 초기화
       window.emailjs.init(EMAIL_CONFIG.publicKey);
 
-      // 템플릿 파라미터 설정
       const templateParams = {
         to_email: managerEmail,
         from_name: staffName,
@@ -102,7 +97,6 @@ const RestaurantChecklist = () => {
         photos_count: tasks.filter(task => task.photo).length
       };
 
-      // 실제 이메일 전송
       await window.emailjs.send(
         EMAIL_CONFIG.serviceId,
         EMAIL_CONFIG.templateId,
@@ -119,17 +113,19 @@ const RestaurantChecklist = () => {
     }
   };
 
+  const categories = [...new Set(tasks.map(task => task.category))];
+
   return (
     <div className="max-w-4xl mx-auto p-6 bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
-      <div className="bg-white rounded-lg shadow-xl p-6 mb-6">
+      <div className="bg-white rounded-lg shadow-xl p-6">
         <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
           Restaurant Staff Checklist
         </h1>
         
-        {/* Staff Info */}
+        {/* Staff Name Input */}
         <div className="flex justify-center mb-6">
           <div className="flex items-center space-x-2">
-            <User className="text-blue-600" size={20} />
+            <span className="text-blue-600 text-xl">👤</span>
             <input
               type="text"
               placeholder="직원 이름을 입력하세요"
@@ -143,7 +139,7 @@ const RestaurantChecklist = () => {
         {/* Manager Email Display */}
         <div className="flex justify-center mb-6">
           <div className="flex items-center space-x-2 text-gray-600">
-            <Mail className="text-blue-600" size={16} />
+            <span className="text-blue-600">📧</span>
             <span className="text-sm">리포트 수신: {managerEmail}</span>
           </div>
         </div>
@@ -152,7 +148,7 @@ const RestaurantChecklist = () => {
         <div className="mb-6">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm font-medium text-gray-700">
-              Progress: {completedTasks}/{totalTasks} tasks
+              진행률: {completedTasks}/{totalTasks} 업무
             </span>
             <span className="text-sm font-medium text-gray-700">
               {progressPercentage.toFixed(1)}%
@@ -162,13 +158,13 @@ const RestaurantChecklist = () => {
             <div
               className="bg-gradient-to-r from-green-400 to-blue-500 h-3 rounded-full transition-all duration-300"
               style={{ width: `${progressPercentage}%` }}
-            ></div>
+            />
           </div>
         </div>
 
         {/* Date */}
         <div className="flex items-center justify-center mb-6">
-          <Clock className="text-gray-600 mr-2" size={16} />
+          <span className="text-gray-600 mr-2">🕐</span>
           <span className="text-gray-600 font-medium">{currentDate}</span>
         </div>
 
@@ -192,11 +188,11 @@ const RestaurantChecklist = () => {
                     <div className="flex items-center space-x-3">
                       <button
                         onClick={() => toggleTask(task.id)}
-                        className={`transition-colors duration-200 ${
+                        className={`text-2xl transition-colors duration-200 ${
                           task.completed ? 'text-green-600' : 'text-gray-400 hover:text-blue-600'
                         }`}
                       >
-                        {task.completed ? <CheckCircle size={24} /> : <Circle size={24} />}
+                        {task.completed ? '✅' : '⭕'}
                       </button>
                       <span className={`font-medium ${
                         task.completed ? 'text-green-700 line-through' : 'text-gray-700'
@@ -216,20 +212,20 @@ const RestaurantChecklist = () => {
                       type="file"
                       accept="image/*"
                       onChange={(e) => handlePhotoUpload(task.id, e)}
-                      ref={el => fileInputRefs.current[task.id] = el}
                       style={{ display: 'none' }}
+                      id={`fileInput-${task.id}`}
                     />
                     <button
-                      onClick={() => fileInputRefs.current[task.id]?.click()}
+                      onClick={() => document.getElementById(`fileInput-${task.id}`).click()}
                       className="flex items-center space-x-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors duration-200"
                     >
-                      <Camera size={16} />
+                      <span>📷</span>
                       <span className="text-sm">사진 추가</span>
                     </button>
                     
                     {task.photo && (
                       <div className="text-sm text-green-600 flex items-center">
-                        <CheckCircle size={16} className="mr-1" />
+                        <span className="mr-1">✅</span>
                         사진 업로드 완료
                       </div>
                     )}
@@ -239,7 +235,7 @@ const RestaurantChecklist = () => {
                     <div className="mt-3 ml-9">
                       <img
                         src={task.photo}
-                        alt={`Photo for ${task.task}`}
+                        alt={`사진: ${task.task}`}
                         className="max-w-xs max-h-32 object-cover rounded-lg border"
                       />
                     </div>
@@ -253,7 +249,7 @@ const RestaurantChecklist = () => {
         {/* Send Report Button */}
         <div className="flex justify-center mt-8">
           <button
-            onClick={generateReport}
+            onClick={sendReport}
             disabled={isLoading}
             className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
               isLoading 
@@ -263,7 +259,7 @@ const RestaurantChecklist = () => {
                 : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg'
             }`}
           >
-            <Send size={20} />
+            <span className="text-xl">📧</span>
             <span>
               {isLoading 
                 ? '전송 중...' 
