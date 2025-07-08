@@ -1,285 +1,326 @@
-import React, { useState, useRef } from 'react';
-import { Camera, Send, CheckCircle, Circle, Clock, User, Mail } from 'lucide-react';
-
-const RestaurantChecklist = () => {
-  const [tasks, setTasks] = useState([
-    { id: 1, category: 'Opening', task: 'Turn on all lights and equipment', completed: false, photo: null, time: null },
-    { id: 2, category: 'Opening', task: 'Check temperature of refrigerators/freezers', completed: false, photo: null, time: null },
-    { id: 3, category: 'Opening', task: 'Set up dining area (tables, chairs, napkins)', completed: false, photo: null, time: null },
-    { id: 4, category: 'Kitchen', task: 'Prepare ingredients for daily specials', completed: false, photo: null, time: null },
-    { id: 5, category: 'Kitchen', task: 'Check food expiration dates', completed: false, photo: null, time: null },
-    { id: 6, category: 'Kitchen', task: 'Clean and sanitize work surfaces', completed: false, photo: null, time: null },
-    { id: 7, category: 'Service', task: 'Stock napkins, utensils, and condiments', completed: false, photo: null, time: null },
-    { id: 8, category: 'Service', task: 'Check POS system and printers', completed: false, photo: null, time: null },
-    { id: 9, category: 'Cleaning', task: 'Wipe down all tables and chairs', completed: false, photo: null, time: null },
-    { id: 10, category: 'Cleaning', task: 'Clean restrooms and restock supplies', completed: false, photo: null, time: null },
-    { id: 11, category: 'Closing', task: 'Count cash register and prepare deposit', completed: false, photo: null, time: null },
-    { id: 12, category: 'Closing', task: 'Turn off all equipment and lights', completed: false, photo: null, time: null }
-  ]);
-
-  const [staffName, setStaffName] = useState('');
-  const [managerEmail, setManagerEmail] = useState('');
-  const [currentDate] = useState(new Date().toLocaleDateString());
-  const fileInputRefs = useRef({});
-
-  const toggleTask = (id) => {
-    setTasks(tasks.map(task => 
-      task.id === id 
-        ? { ...task, completed: !task.completed, time: !task.completed ? new Date().toLocaleTimeString() : null }
-        : task
-    ));
-  };
-
-  const handlePhotoUpload = (id, event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setTasks(tasks.map(task => 
-          task.id === id 
-            ? { ...task, photo: e.target.result }
-            : task
-        ));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const completedTasks = tasks.filter(task => task.completed).length;
-  const totalTasks = tasks.length;
-  const progressPercentage = (completedTasks / totalTasks) * 100;
-
-  const categories = [...new Set(tasks.map(task => task.category))];
-
-  const generateReport = async () => {
-    if (!staffName || !managerEmail) {
-      alert('Please enter staff name and manager email before sending report.');
-      return;
-    }
-
-    const completedTasksList = tasks.filter(task => task.completed);
-    const incompleteTasksList = tasks.filter(task => !task.completed);
-
-    const reportData = {
-      date: currentDate,
-      staffName: staffName,
-      totalTasks: totalTasks,
-      completedTasks: completedTasks,
-      completionRate: `${progressPercentage.toFixed(1)}%`,
-      completedTasksList: completedTasksList,
-      incompleteTasksList: incompleteTasksList
-    };
-
-    // EmailJS 연동 예제 (실제 사용 시 emailjs 라이브러리 필요)
-    // npm install @emailjs/browser
-    
-    try {
-      // EmailJS 서비스 초기화 (실제 키값들로 교체 필요)
-      // await emailjs.init("YOUR_PUBLIC_KEY");
-      
-      const templateParams = {
-        to_email: managerEmail,
-        from_name: staffName,
-        report_date: currentDate,
-        total_tasks: totalTasks,
-        completed_tasks: completedTasks,
-        completion_rate: `${progressPercentage.toFixed(1)}%`,
-        completed_list: completedTasksList.map(task => `✓ ${task.task} (${task.time})`).join('\n'),
-        incomplete_list: incompleteTasksList.map(task => `✗ ${task.task}`).join('\n'),
-        photos_count: tasks.filter(task => task.photo).length
-      };
-
-      // 실제 이메일 전송 (EmailJS)
-      // await emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams);
-      
-      // 현재는 데모 버전이므로 알림창 표시
-      const reportText = `
-RESTAURANT DAILY CHECKLIST REPORT
-Date: ${reportData.date}
-Staff Member: ${reportData.staffName}
-Manager Email: ${managerEmail}
-
-SUMMARY:
-- Total Tasks: ${reportData.totalTasks}
-- Completed Tasks: ${reportData.completedTasks}
-- Completion Rate: ${reportData.completionRate}
-
-COMPLETED TASKS:
-${completedTasksList.map(task => `✓ ${task.task} (${task.time})`).join('\n')}
-
-INCOMPLETE TASKS:
-${incompleteTasksList.map(task => `✗ ${task.task}`).join('\n')}
-
-Photos attached: ${tasks.filter(task => task.photo).length}
-
-📧 EmailJS 연동 방법:
-1. EmailJS 계정 생성: https://emailjs.com
-2. 이메일 서비스 연결 (Gmail, Outlook 등)
-3. 템플릿 생성
-4. PUBLIC_KEY, SERVICE_ID, TEMPLATE_ID 설정
-5. npm install @emailjs/browser
-      `;
-
-      alert(`Report generated! 실제 연동 시 ${managerEmail}로 전송됩니다:\n\n${reportText}`);
-      
-    } catch (error) {
-      console.error('Email sending failed:', error);
-      alert('이메일 전송에 실패했습니다. 네트워크 연결을 확인해주세요.');
-    }
-  };
-
-  return (
-    <div className="max-w-4xl mx-auto p-6 bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
-      <div className="bg-white rounded-lg shadow-xl p-6 mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-          Restaurant Staff Checklist
-        </h1>
-        
-        {/* Staff Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div className="flex items-center space-x-2">
-            <User className="text-blue-600" size={20} />
-            <input
-              type="text"
-              placeholder="Staff Name"
-              value={staffName}
-              onChange={(e) => setStaffName(e.target.value)}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div className="flex items-center space-x-2">
-            <Mail className="text-blue-600" size={20} />
-            <input
-              type="email"
-              placeholder="Manager Email"
-              value={managerEmail}
-              onChange={(e) => setManagerEmail(e.target.value)}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="mb-6">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-gray-700">
-              Progress: {completedTasks}/{totalTasks} tasks
-            </span>
-            <span className="text-sm font-medium text-gray-700">
-              {progressPercentage.toFixed(1)}%
-            </span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-3">
-            <div
-              className="bg-gradient-to-r from-green-400 to-blue-500 h-3 rounded-full transition-all duration-300"
-              style={{ width: `${progressPercentage}%` }}
-            ></div>
-          </div>
-        </div>
-
-        {/* Date */}
-        <div className="flex items-center justify-center mb-6">
-          <Clock className="text-gray-600 mr-2" size={16} />
-          <span className="text-gray-600 font-medium">{currentDate}</span>
-        </div>
-
-        {/* Tasks by Category */}
-        {categories.map(category => (
-          <div key={category} className="mb-6">
-            <h2 className="text-xl font-semibold text-gray-700 mb-3 p-2 bg-gray-100 rounded-lg">
-              {category}
-            </h2>
-            <div className="space-y-3">
-              {tasks.filter(task => task.category === category).map(task => (
-                <div
-                  key={task.id}
-                  className={`p-4 rounded-lg border-2 transition-all duration-200 ${
-                    task.completed
-                      ? 'bg-green-50 border-green-200'
-                      : 'bg-white border-gray-200 hover:border-blue-300'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center space-x-3">
-                      <button
-                        onClick={() => toggleTask(task.id)}
-                        className={`transition-colors duration-200 ${
-                          task.completed ? 'text-green-600' : 'text-gray-400 hover:text-blue-600'
-                        }`}
-                      >
-                        {task.completed ? <CheckCircle size={24} /> : <Circle size={24} />}
-                      </button>
-                      <span className={`font-medium ${
-                        task.completed ? 'text-green-700 line-through' : 'text-gray-700'
-                      }`}>
-                        {task.task}
-                      </span>
-                    </div>
-                    {task.time && (
-                      <span className="text-xs text-green-600 font-medium">
-                        ✓ {task.time}
-                      </span>
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center space-x-3 ml-9">
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Staff Checklist</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <style>
+        .icon {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="max-w-4xl mx-auto p-6 bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+        <div class="bg-white rounded-lg shadow-xl p-6 mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+                Restaurant Staff Checklist
+            </h1>
+            
+            <!-- Staff Info -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="flex items-center space-x-2">
+                    <span class="text-blue-600">👤</span>
                     <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handlePhotoUpload(task.id, e)}
-                      ref={el => fileInputRefs.current[task.id] = el}
-                      style={{ display: 'none' }}
+                        type="text"
+                        id="staffName"
+                        placeholder="Staff Name"
+                        class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
-                    <button
-                      onClick={() => fileInputRefs.current[task.id]?.click()}
-                      className="flex items-center space-x-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors duration-200"
-                    >
-                      <Camera size={16} />
-                      <span className="text-sm">Add Photo</span>
-                    </button>
-                    
-                    {task.photo && (
-                      <div className="text-sm text-green-600 flex items-center">
-                        <CheckCircle size={16} className="mr-1" />
-                        Photo uploaded
-                      </div>
-                    )}
-                  </div>
-                  
-                  {task.photo && (
-                    <div className="mt-3 ml-9">
-                      <img
-                        src={task.photo}
-                        alt={`Photo for ${task.task}`}
-                        className="max-w-xs max-h-32 object-cover rounded-lg border"
-                      />
-                    </div>
-                  )}
                 </div>
-              ))}
+                <div class="flex items-center space-x-2">
+                    <span class="text-blue-600">📧</span>
+                    <div class="flex-1 px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-700">
+                        📧 chang.yoonho@gmail.com
+                    </div>
+                    <button
+                        onclick="toggleSettings()"
+                        class="p-2 text-gray-600 hover:text-blue-600 transition-colors"
+                        title="EmailJS Settings"
+                    >
+                        ⚙️
+                    </button>
+                </div>
             </div>
-          </div>
-        ))}
 
-        {/* Send Report Button */}
-        <div className="flex justify-center mt-8">
-          <button
-            onClick={generateReport}
-            className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
-              completedTasks === totalTasks
-                ? 'bg-green-600 text-white hover:bg-green-700 shadow-lg'
-                : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg'
-            }`}
-          >
-            <Send size={20} />
-            <span>
-              {completedTasks === totalTasks ? 'Send Complete Report' : 'Send Progress Report'}
-            </span>
-          </button>
+            <!-- EmailJS Settings Panel -->
+            <div id="settingsPanel" class="bg-gray-50 p-4 rounded-lg mb-6 border-2 border-blue-200" style="display: none;">
+                <h3 class="font-semibold text-gray-700 mb-3">📧 EmailJS 설정</h3>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Public Key</label>
+                        <input type="text" id="publicKey" placeholder="EmailJS Public Key" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Service ID</label>
+                        <input type="text" id="serviceId" placeholder="EmailJS Service ID" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Template ID</label>
+                        <input type="text" id="templateId" placeholder="EmailJS Template ID" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                </div>
+                <div class="mt-3 text-sm text-gray-600">
+                    <p>💡 EmailJS 대시보드에서 찾을 수 있는 정보들:</p>
+                    <ul class="list-disc list-inside mt-1 space-y-1">
+                        <li>Public Key: Account → General → Public Key</li>
+                        <li>Service ID: Email Services → 서비스 ID</li>
+                        <li>Template ID: Email Templates → 템플릿 ID</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm font-medium text-gray-700" id="progressText">
+                        Progress: 0/12 tasks
+                    </span>
+                    <span class="text-sm font-medium text-gray-700" id="progressPercent">
+                        0%
+                    </span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div id="progressBar" class="bg-gradient-to-r from-green-400 to-blue-500 h-3 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Date -->
+            <div class="flex items-center justify-center mb-6">
+                <span class="text-gray-600 mr-2">🕐</span>
+                <span class="text-gray-600 font-medium" id="currentDate"></span>
+            </div>
+
+            <!-- Tasks -->
+            <div id="tasksContainer"></div>
+
+            <!-- Send Report Button -->
+            <div class="flex justify-center mt-8">
+                <button
+                    id="sendButton"
+                    onclick="sendReport()"
+                    class="flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 bg-blue-600 text-white hover:bg-blue-700 shadow-lg"
+                >
+                    <span>📧</span>
+                    <span id="sendButtonText">Send Progress Report</span>
+                </button>
+            </div>
         </div>
-      </div>
     </div>
-  );
-};
 
-export default RestaurantChecklist;
+    <script>
+        // 전역 변수
+        let tasks = [
+            { id: 1, category: 'Opening', task: 'Turn on all lights and equipment', completed: false, photo: null, time: null },
+            { id: 2, category: 'Opening', task: 'Check temperature of refrigerators/freezers', completed: false, photo: null, time: null },
+            { id: 3, category: 'Opening', task: 'Set up dining area (tables, chairs, napkins)', completed: false, photo: null, time: null },
+            { id: 4, category: 'Kitchen', task: 'Prepare ingredients for daily specials', completed: false, photo: null, time: null },
+            { id: 5, category: 'Kitchen', task: 'Check food expiration dates', completed: false, photo: null, time: null },
+            { id: 6, category: 'Kitchen', task: 'Clean and sanitize work surfaces', completed: false, photo: null, time: null },
+            { id: 7, category: 'Service', task: 'Stock napkins, utensils, and condiments', completed: false, photo: null, time: null },
+            { id: 8, category: 'Service', task: 'Check POS system and printers', completed: false, photo: null, time: null },
+            { id: 9, category: 'Cleaning', task: 'Wipe down all tables and chairs', completed: false, photo: null, time: null },
+            { id: 10, category: 'Cleaning', task: 'Clean restrooms and restock supplies', completed: false, photo: null, time: null },
+            { id: 11, category: 'Closing', task: 'Count cash register and prepare deposit', completed: false, photo: null, time: null },
+            { id: 12, category: 'Closing', task: 'Turn off all equipment and lights', completed: false, photo: null, time: null }
+        ];
+
+        let isLoading = false;
+        const managerEmail = 'chang.yoonho@gmail.com';
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString();
+            renderTasks();
+            updateProgress();
+        });
+
+        // 설정 패널 토글
+        function toggleSettings() {
+            const panel = document.getElementById('settingsPanel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // 작업 토글
+        function toggleTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                task.time = task.completed ? new Date().toLocaleTimeString() : null;
+                renderTasks();
+                updateProgress();
+            }
+        }
+
+        // 사진 업로드
+        function handlePhotoUpload(id, event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const task = tasks.find(t => t.id === id);
+                    if (task) {
+                        task.photo = e.target.result;
+                        renderTasks();
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 진행률 업데이트
+        function updateProgress() {
+            const completedTasks = tasks.filter(task => task.completed).length;
+            const totalTasks = tasks.length;
+            const percentage = (completedTasks / totalTasks) * 100;
+
+            document.getElementById('progressText').textContent = `Progress: ${completedTasks}/${totalTasks} tasks`;
+            document.getElementById('progressPercent').textContent = `${percentage.toFixed(1)}%`;
+            document.getElementById('progressBar').style.width = `${percentage}%`;
+
+            const sendButton = document.getElementById('sendButton');
+            const sendButtonText = document.getElementById('sendButtonText');
+            
+            if (completedTasks === totalTasks) {
+                sendButton.className = sendButton.className.replace('bg-blue-600 hover:bg-blue-700', 'bg-green-600 hover:bg-green-700');
+                sendButtonText.textContent = 'Send Complete Report';
+            } else {
+                sendButton.className = sendButton.className.replace('bg-green-600 hover:bg-green-700', 'bg-blue-600 hover:bg-blue-700');
+                sendButtonText.textContent = 'Send Progress Report';
+            }
+        }
+
+        // 작업 렌더링
+        function renderTasks() {
+            const container = document.getElementById('tasksContainer');
+            const categories = [...new Set(tasks.map(task => task.category))];
+            
+            container.innerHTML = '';
+
+            categories.forEach(category => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'mb-6';
+                
+                const categoryTasks = tasks.filter(task => task.category === category);
+                
+                categoryDiv.innerHTML = `
+                    <h2 class="text-xl font-semibold text-gray-700 mb-3 p-2 bg-gray-100 rounded-lg">
+                        ${category}
+                    </h2>
+                    <div class="space-y-3">
+                        ${categoryTasks.map(task => `
+                            <div class="p-4 rounded-lg border-2 transition-all duration-200 ${
+                                task.completed
+                                    ? 'bg-green-50 border-green-200'
+                                    : 'bg-white border-gray-200 hover:border-blue-300'
+                            }">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center space-x-3">
+                                        <button onclick="toggleTask(${task.id})" class="transition-colors duration-200 ${
+                                            task.completed ? 'text-green-600' : 'text-gray-400 hover:text-blue-600'
+                                        }">
+                                            ${task.completed ? '✅' : '⭕'}
+                                        </button>
+                                        <span class="font-medium ${
+                                            task.completed ? 'text-green-700 line-through' : 'text-gray-700'
+                                        }">
+                                            ${task.task}
+                                        </span>
+                                    </div>
+                                    ${task.time ? `<span class="text-xs text-green-600 font-medium">✓ ${task.time}</span>` : ''}
+                                </div>
+                                
+                                <div class="flex items-center space-x-3 ml-9">
+                                    <input type="file" accept="image/*" onchange="handlePhotoUpload(${task.id}, event)" style="display: none;" id="fileInput${task.id}" />
+                                    <button onclick="document.getElementById('fileInput${task.id}').click()" class="flex items-center space-x-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors duration-200">
+                                        <span>📷</span>
+                                        <span class="text-sm">Add Photo</span>
+                                    </button>
+                                    ${task.photo ? '<div class="text-sm text-green-600 flex items-center"><span class="mr-1">✅</span>Photo uploaded</div>' : ''}
+                                </div>
+                                
+                                ${task.photo ? `<div class="mt-3 ml-9"><img src="${task.photo}" alt="Photo for ${task.task}" class="max-w-xs max-h-32 object-cover rounded-lg border" /></div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                container.appendChild(categoryDiv);
+            });
+        }
+
+        // 리포트 전송
+        async function sendReport() {
+            const staffName = document.getElementById('staffName').value;
+            const publicKey = document.getElementById('publicKey').value;
+            const serviceId = document.getElementById('serviceId').value;
+            const templateId = document.getElementById('templateId').value;
+
+            if (!staffName) {
+                alert('직원 이름을 입력해주세요.');
+                return;
+            }
+
+            if (!publicKey || !serviceId || !templateId) {
+                alert('EmailJS 설정을 먼저 완료해주세요. (설정 아이콘 클릭)');
+                return;
+            }
+
+            if (isLoading) return;
+            
+            isLoading = true;
+            const sendButton = document.getElementById('sendButton');
+            const sendButtonText = document.getElementById('sendButtonText');
+            
+            sendButton.classList.add('loading');
+            sendButtonText.textContent = 'Sending...';
+
+            const completedTasks = tasks.filter(task => task.completed);
+            const incompleteTasks = tasks.filter(task => !task.completed);
+            const totalTasks = tasks.length;
+            const completedCount = completedTasks.length;
+            const progressPercentage = (completedCount / totalTasks) * 100;
+
+            try {
+                emailjs.init(publicKey);
+
+                const templateParams = {
+                    to_email: managerEmail,
+                    from_name: staffName,
+                    report_date: new Date().toLocaleDateString(),
+                    total_tasks: totalTasks,
+                    completed_tasks: completedCount,
+                    completion_rate: `${progressPercentage.toFixed(1)}%`,
+                    completed_list: completedTasks.length > 0 
+                        ? completedTasks.map(task => `✓ ${task.task} (${task.time})`).join('\n')
+                        : '완료된 업무 없음',
+                    incomplete_list: incompleteTasks.length > 0
+                        ? incompleteTasks.map(task => `✗ ${task.task}`).join('\n')
+                        : '미완료 업무 없음',
+                    photos_count: tasks.filter(task => task.photo).length
+                };
+
+                await emailjs.send(serviceId, templateId, templateParams);
+                alert(`✅ 리포트가 성공적으로 ${managerEmail}로 전송되었습니다!`);
+
+            } catch (error) {
+                console.error('Email sending failed:', error);
+                alert(`❌ 이메일 전송 실패: ${error.message || '네트워크 연결을 확인해주세요.'}`);
+            } finally {
+                isLoading = false;
+                sendButton.classList.remove('loading');
+                updateProgress(); // 버튼 텍스트 복원
+            }
+        }
+    </script>
+</body>
+</html>
