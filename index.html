@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Staff Checklist</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
+</head>
+<body>
+    <div class="max-w-4xl mx-auto p-6 bg-blue-50 min-h-screen">
+        <div class="bg-white rounded-lg shadow-xl p-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+                Restaurant Staff Checklist
+            </h1>
+            
+            <div class="flex justify-center mb-6">
+                <input
+                    type="text"
+                    id="staffName"
+                    placeholder="Enter your name"
+                    class="px-4 py-3 border border-gray-300 rounded-lg text-lg"
+                />
+            </div>
+            
+            <div class="flex justify-center mb-6">
+                <span class="text-gray-600">Report will be sent to: chang.yoonho@gmail.com</span>
+            </div>
+
+            <div class="mb-6">
+                <div class="flex justify-between mb-2">
+                    <span id="progressText">Progress: 0/8 tasks</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div id="progressBar" class="bg-green-500 h-3 rounded-full" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Opening Tasks -->
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold mb-3 p-2 bg-gray-100 rounded">Opening</h2>
+                
+                <div class="p-4 mb-3 rounded border-2 bg-white border-gray-200" id="task1">
+                    <div class="flex justify-between mb-2">
+                        <div class="flex items-center">
+                            <button onclick="toggleTask(1)" class="mr-3 text-2xl" id="btn1">⭕</button>
+                            <span id="text1">Turn on heaters</span>
+                        </div>
+                        <span id="time1" class="text-sm text-green-600" style="display: none;"></span>
+                    </div>
+                    <div class="ml-10">
+                        <input type="file" accept="image/*" onchange="handlePhotoUpload(1, event)" style="display: none;" id="file1" />
+                        <button onclick="document.getElementById('file1').click()" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full mr-3">📷 Add Photo</button>
+                        <span id="photoStatus1" class="text-green-600" style="display: none;">✅ Photo uploaded</span>
+                        <div id="photoPreview1" style="display: none;" class="mt-2"></div>
+                    </div>
+                </div>
+
+                <div class="p-4 mb-3 rounded border-2 bg-white border-gray-200" id="task2">
+                    <div class="flex justify-between mb-2">
+                        <div class="flex items-center">
+                            <button onclick="toggleTask(2)" class="mr-3 text-2xl" id="btn2">⭕</button>
+                            <span id="text2">Toilet clean and fill up toilet paper and hand towel and hand soap</span>
+                        </div>
+                        <span id="time2" class="text-sm text-green-600" style="display: none;"></span>
+                    </div>
+                    <div class="ml-10">
+                        <input type="file" accept="image/*" onchange="handlePhotoUpload(2, event)" style="display: none;" id="file2" />
+                        <button onclick="document.getElementById('file2').click()" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full mr-3">📷 Add Photo</button>
+                        <span id="photoStatus2" class="text-green-600" style="display: none;">✅ Photo uploaded</span>
+                        <div id="photoPreview2" style="display: none;" class="mt-2"></div>
+                    </div>
+                </div>
+
+                <div class="p-4 mb-3 rounded border-2 bg-white border-gray-200" id="task3">
+                    <div class="flex justify-between mb-2">
+                        <div class="flex items-center">
+                            <button onclick="toggleTask(3)" class="mr-3 text-2xl" id="btn3">⭕</button>
+                            <span id="text3">Clean floor</span>
+                        </div>
+                        <span id="time3" class="text-sm text-green-600" style="display: none;"></span>
+                    </div>
+                    <div class="ml-10">
+                        <input type="file" accept="image/*" onchange="handlePhotoUpload(3, event)" style="display: none;" id="file3" />
+                        <button onclick="document.getElementById('file3').click()" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full mr-3">📷 Add Photo</button>
+                        <span id="photoStatus3" class="text-green-600" style="display: none;">✅ Photo uploaded</span>
+                        <div id="photoPreview3" style="display: none;" class="mt-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Closing Tasks -->
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold mb-3 p-2 bg-gray-100 rounded">Closing</h2>
+                
+                <div class="p-4 mb-3 rounded border-2 bg-white border-gray-200" id="task4">
+                    <div class="flex justify-between mb-2">
+                        <div class="flex items-center">
+                            <button onclick="toggleTask(4)" class="mr-3 text-2xl" id="btn4">⭕</button>
+                            <span id="text4">Turn off heaters</span>
+                        </div>
+                        <span id="time4" class="text-sm text-green-600" style="display: none;"></span>
+                    </div>
+                    <div class="ml-10">
+                        <input type="file" accept="image/*" onchange="handlePhotoUpload(4, event)" style="display: none;" id="file4" />
+                        <button onclick="document.getElementById('file4').click()" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full mr-3">📷 Add Photo</button>
+                        <span id="photoStatus4" class="text-green-600" style="display: none;">✅ Photo uploaded</span>
+                        <div id="photoPreview4" style="display: none;" class="mt-2"></div>
+                    </div>
+                </div>
+
+                <div class="p-4 mb-3 rounded border-2 bg-white border-gray-200" id="task5">
+                    <div class="flex justify-between mb-2">
+                        <div class="flex items-center">
+                            <button onclick="toggleTask(5)" class="mr-3 text-2xl" id="btn5">⭕</button>
+                            <span id="text5">Clean floor</span>
+                        </div>
+                        <span id="time5" class="text-sm text-green-600" style="display: none;"></span>
+                    </div>
+                    <div class="ml-10">
+                        <input type="file" accept="image/*" onchange="handlePhotoUpload(5, event)" style="display: none;" id="file5" />
+                        <button onclick="document.getElementById('file5').click()" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full mr-3">📷 Add Photo</button>
+                        <span id="photoStatus5" class="text-green-600" style="display: none;">✅ Photo uploaded</span>
+                        <div id="photoPreview5" style="display: none;" class="mt-2"></div>
+                    </div>
+                </div>
+
+                <div class="p-4 mb-3 rounded border-2 bg-white border-gray-200" id="task6">
+                    <div class="flex justify-between mb-2">
+                        <div class="flex items-center">
+                            <button onclick="toggleTask(6)" class="mr-3 text-2xl" id="btn6">⭕</button>
+                            <span id="text6">Turn off exhaust fan upstairs and downstairs</span>
+                        </div>
+                        <span id="time6" class="text-sm text-green-600" style="display: none;"></span>
+                    </div>
+                    <div class="ml-10">
+                        <input type="file" accept="image/*" onchange="handlePhotoUpload(6, event)" style="display: none;" id="file6" />
+                        <button onclick="document.getElementById('file6').click()" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full mr-3">📷 Add Photo</button>
+                        <span id="photoStatus6" class="text-green-600" style="display: none;">✅ Photo uploaded</span>
+                        <div id="photoPreview6" style="display: none;" class="mt-2"></div>
+                    </div>
+                </div>
+
+                <div class="p-4 mb-3 rounded border-2 bg-white border-gray-200" id="task7">
+                    <div class="flex justify-between mb-2">
+                        <div class="flex items-center">
+                            <button onclick="toggleTask(7)" class="mr-3 text-2xl" id="btn7">⭕</button>
+                            <span id="text7">Clear all iPads - Check all 9 iPads (kitchen, upstairs, main POS, bar, etc.). Open POS app on each and check all tables. If any table has items but no payment, tap table → Options → Reload. If still not cleared, use Delete to remove all items. After clearing all tables, turn off all 9 iPads by pressing power button (PLEASE DO NOT INSTALL 2 ORDERBUDDY APPS IN 1 IPAD)</span>
+                        </div>
+                        <span id="time7" class="text-sm text-green-600" style="display: none;"></span>
+                    </div>
+                    <div class="ml-10">
+                        <input type="file" accept="image/*" onchange="handlePhotoUpload(7, event)" style="display: none;" id="file7" />
+                        <button onclick="document.getElementById('file7').click()" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full mr-3">📷 Add Photo</button>
+                        <span id="photoStatus7" class="text-green-600" style="display: none;">✅ Photo uploaded</span>
+                        <div id="photoPreview7" style="display: none;" class="mt-2"></div>
+                    </div>
+                </div>
+
+                <div class="p-4 mb-3 rounded border-2 bg-white border-gray-200" id="task8">
+                    <div class="flex justify-between mb-2">
+                        <div class="flex items-center">
+                            <button onclick="toggleTask(8)" class="mr-3 text-2xl" id="btn8">⭕</button>
+                            <span id="text8">Send drinks orders</span>
+                        </div>
+                        <span id="time8" class="text-sm text-green-600" style="display: none;"></span>
+                    </div>
+                    <div class="ml-10">
+                        <input type="file" accept="image/*" onchange="handlePhotoUpload(8, event)" style="display: none;" id="file8" />
+                        <button onclick="document.getElementById('file8').click()" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full mr-3">📷 Add Photo</button>
+                        <span id="photoStatus8" class="text-green-600" style="display: none;">✅ Photo uploaded</span>
+                        <div id="photoPreview8" style="display: none;" class="mt-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-8">
+                <button
+                    id="sendButton"
+                    onclick="sendReport()"
+                    class="px-6 py-3 rounded-lg font-medium bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                    Send Progress Report
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tasks = {
+            1: { completed: false, photo: null, time: null, text: 'Turn on heaters' },
+            2: { completed: false, photo: null, time: null, text: 'Toilet clean and fill up toilet paper and hand towel and hand soap' },
+            3: { completed: false, photo: null, time: null, text: 'Clean floor' },
+            4: { completed: false, photo: null, time: null, text: 'Turn off heaters' },
+            5: { completed: false, photo: null, time: null, text: 'Clean floor' },
+            6: { completed: false, photo: null, time: null, text: 'Turn off exhaust fan upstairs and downstairs' },
+            7: { completed: false, photo: null, time: null, text: 'Clear all iPads - Check all 9 iPads (kitchen, upstairs, main POS, bar, etc.). Open POS app on each and check all tables. If any table has items but no payment, tap table → Options → Reload. If still not cleared, use Delete to remove all items. After clearing all tables, turn off all 9 iPads by pressing power button (PLEASE DO NOT INSTALL 2 ORDERBUDDY APPS IN 1 IPAD)' },
+            8: { completed: false, photo: null, time: null, text: 'Send drinks orders' }
+        };
+
+        let isLoading = false;
+        const managerEmail = 'chang.yoonho@gmail.com';
+
+        // Initialize EmailJS
+        emailjs.init('pxPMV9MhBRrIIDzvS');
+
+        // Cloudinary configuration
+        const CLOUDINARY_CONFIG = {
+            cloudName: 'djtlhsvn0',
+            uploadPreset: 'unsigned_upload'
+        };
+
+        async function uploadToCloudinary(file, taskId) {
+            try {
+                console.log('Starting upload to Cloudinary for task:', taskId);
+                
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset);
+                formData.append('folder', 'restaurant-checklist');
+                formData.append('public_id', `task-${taskId}-${Date.now()}`);
+
+                const response = await fetch(
+                    `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/upload`,
+                    {
+                        method: 'POST',
+                        body: formData
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Cloudinary upload successful:', data.secure_url);
+                return data.secure_url;
+            } catch (error) {
+                console.error('Cloudinary upload failed:', error);
+                throw error;
+            }
+        }
+
+        function toggleTask(id) {
+            const task = tasks[id];
+            task.completed = !task.completed;
+            task.time = task.completed ? new Date().toLocaleTimeString() : null;
+            
+            const btn = document.getElementById('btn' + id);
+            const text = document.getElementById('text' + id);
+            const timeSpan = document.getElementById('time' + id);
+            const taskDiv = document.getElementById('task' + id);
+            
+            if (task.completed) {
+                btn.textContent = '✅';
+                text.className = 'line-through text-green-700';
+                timeSpan.textContent = '✓ ' + task.time;
+                timeSpan.style.display = 'inline';
+                taskDiv.className = 'p-4 mb-3 rounded border-2 bg-green-50 border-green-200';
+            } else {
+                btn.textContent = '⭕';
+                text.className = '';
+                timeSpan.style.display = 'none';
+                taskDiv.className = 'p-4 mb-3 rounded border-2 bg-white border-gray-200';
+            }
+            
+            updateProgress();
+        }
+
+        function handlePhotoUpload(id, event) {
+            const file = event.target.files[0];
+            if (file) {
+                console.log('Photo selected for task:', id, 'File:', file.name);
+                
+                // Show uploading status
+                const statusEl = document.getElementById('photoStatus' + id);
+                statusEl.textContent = '📤 Uploading...';
+                statusEl.style.display = 'inline';
+                statusEl.style.color = '#FF9800';
+
+                // Show preview immediately
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewEl = document.getElementById('photoPreview' + id);
+                    previewEl.innerHTML = '<img src="' + e.target.result + '" alt="Task photo" class="max-w-xs max-h-32 rounded border" />';
+                    previewEl.style.display = 'block';
+                    
+                    // Upload to Cloudinary
+                    uploadToCloudinary(file, id)
+                        .then(url => {
+                            console.log('Upload successful for task', id, ':', url);
+                            tasks[id].photo = url;
+                            statusEl.textContent = '✅ Photo uploaded to cloud';
+                            statusEl.style.color = '#4CAF50';
+                        })
+                        .catch(error => {
+                            console.error('Upload failed for task', id, ':', error);
+                            statusEl.textContent = '❌ Upload failed - using local copy';
+                            statusEl.style.color = '#f44336';
+                            // Fallback to base64
+                            tasks[id].photo = e.target.result;
+                        });
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function updateProgress() {
+            let completed = 0;
+            for (let i = 1; i <= 8; i++) {
+                if (tasks[i].completed) completed++;
+            }
+            
+            const percentage = (completed / 8) * 100;
+            
+            document.getElementById('progressText').textContent = 'Progress: ' + completed + '/8 tasks';
+            document.getElementById('progressPercent').textContent = percentage.toFixed(1) + '%';
+            document.getElementById('progressBar').style.width = percentage + '%';
+
+            const sendButton = document.getElementById('sendButton');
+            if (completed === 8) {
+                sendButton.textContent = 'Send Complete Report';
+                sendButton.className = 'px-6 py-3 rounded-lg font-medium bg-green-600 hover:bg-green-700 text-white';
+            } else {
+                sendButton.textContent = 'Send Progress Report';
+                sendButton.className = 'px-6 py-3 rounded-lg font-medium bg-blue-600 hover:bg-blue-700 text-white';
+            }
+        }
+
+        async function sendReport() {
+            const staffName = document.getElementById('staffName').value;
+            
+            if (!staffName.trim()) {
+                alert('Please enter your name before sending the report.');
+                return;
+            }
+
+            if (isLoading) return;
+            
+            isLoading = true;
+            const sendButton = document.getElementById('sendButton');
+            sendButton.textContent = 'Sending...';
+            sendButton.className = 'px-6 py-3 rounded-lg font-medium bg-gray-400 cursor-not-allowed text-white';
+
+            try {
+                let completedList = [];
+                let incompleteList = [];
+                let photoLinks = [];
+
+                // Collect photo links
+                for (let i = 1; i <= 8; i++) {
+                    const task = tasks[i];
+                    if (task.completed) {
+                        completedList.push('✓ ' + task.text + ' (' + task.time + ')');
+                    } else {
+                        incompleteList.push('✗ ' + task.text);
+                    }
+                    
+                    // Collect photo links
+                    if (task.photo) {
+                        console.log('Found photo for task', i, ':', task.photo);
+                        photoLinks.push({
+                            task: task.text,
+                            url: task.photo,
+                            time: task.time
+                        });
+                    }
+                }
+
+                console.log('Total photo links found:', photoLinks.length);
+                console.log('Photo links:', photoLinks);
+
+                const completedCount = completedList.length;
+                const progressPercentage = (completedCount / 8) * 100;
+
+                // Create photo links section for email
+                let photoLinksText = '';
+                if (photoLinks.length > 0) {
+                    photoLinksText = photoLinks.map(photo => 
+                        `📷 ${photo.task} (${photo.time})\n   🔗 ${photo.url}`
+                    ).join('\n\n');
+                } else {
+                    photoLinksText = 'No photos uploaded';
+                }
+
+                // Create HTML email with clickable photo links
+                const emailBodyHtml = `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                        <h2 style="color: #333; border-bottom: 2px solid #4CAF50; padding-bottom: 10px;">
+                            🏪 Restaurant Daily Checklist Report
+                        </h2>
+                        
+                        <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                            <p><strong>📅 Date:</strong> ${new Date().toLocaleDateString('en-US')}</p>
+                            <p><strong>👤 Staff Member:</strong> ${staffName}</p>
+                            <p><strong>📊 Completion Rate:</strong> ${progressPercentage.toFixed(1)}% (${completedCount}/8 tasks)</p>
+                        </div>
+
+                        <h3 style="color: #4CAF50;">✅ Completed Tasks:</h3>
+                        <div style="background: #f0f8f0; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                            ${completedList.length > 0 ? 
+                                completedList.map(task => `<p style="margin: 5px 0;">• ${task}</p>`).join('') : 
+                                '<p>No completed tasks</p>'
+                            }
+                        </div>
+
+                        <h3 style="color: #f44336;">❌ Incomplete Tasks:</h3>
+                        <div style="background: #fff0f0; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                            ${incompleteList.length > 0 ? 
+                                incompleteList.map(task => `<p style="margin: 5px 0;">• ${task}</p>`).join('') : 
+                                '<p>No incomplete tasks</p>'
+                            }
+                        </div>
+
+                        <h3 style="color: #2196F3;">📷 Task Photos (${photoLinks.length}):</h3>
+                        <div style="background: #f0f8ff; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                            ${photoLinks.length > 0 ? 
+                                photoLinks.map(photo => `
+                                    <div style="margin: 15px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: white;">
+                                        <p style="margin: 0 0 8px 0; font-weight: bold; color: #333;">📋 ${photo.task}</p>
+                                        <p style="margin: 0 0 8px 0; font-size: 12px; color: #666;">⏰ Completed: ${photo.time}</p>
+                                        <a href="${photo.url}" target="_blank" style="color: #2196F3; text-decoration: none; font-weight: bold;">
+                                            🔗 View Photo
+                                        </a>
+                                        <br><br>
+                                        <img src="${photo.url}" alt="Task Photo" style="max-width: 100%; max-height: 200px; border-radius: 5px; border: 1px solid #ccc;">
+                                    </div>
+                                `).join('') : 
+                                '<p style="color: #666;">No photos uploaded</p>'
+                            }
+                        </div>
+
+                        <div style="margin-top: 30px; padding: 15px; background: #e8f5e8; border-radius: 5px; text-align: center;">
+                            <p style="margin: 0; font-size: 12px; color: #666;">
+                                📱 This report was automatically generated by Restaurant Checklist System<br>
+                                🔗 Photos are securely stored in the cloud and accessible via the links above
+                            </p>
+                        </div>
+                    </div>
+                `;
+
+                const templateParams = {
+                    to_email: managerEmail,
+                    from_name: staffName,
+                    report_date: new Date().toLocaleDateString('en-US'),
+                    email_body_html: emailBodyHtml
+                };
+
+                console.log('Sending email with template params:', templateParams);
+
+                await emailjs.send('service_oc0qw5r', 'template_w8xps0u', templateParams);
+                alert(`✅ Report successfully sent to ${managerEmail}!\n\n📷 ${photoLinks.length} photos uploaded to cloud and linked in email.\n🔗 Photos can be viewed by clicking the links in the email.`);
+
+            } catch (error) {
+                console.error('Email sending failed:', error);
+                alert('❌ Email sending failed: ' + (error.message || 'Please check your network connection.'));
+            } finally {
+                isLoading = false;
+                updateProgress();
+            }
+        }
+    </script>
+</body>
+</html>
